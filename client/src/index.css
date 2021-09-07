@@ -1,0 +1,67 @@
+@import "~materialize-css/dist/css/materialize.min.css";
+
+button.btn-space{
+    margin-right: 1rem !important;
+}
+
+input.input-focus-color {
+    //border-bottom: 1px solid #fff!important;
+    //box-shadow: 0 1px 0 0 #fff!important;
+}
+
+input.input-focus-color + label {
+    //color: #ffffff!important;
+}
+
+input.input-focus-color:focus + label {
+    color: #d7d7d7 !important;
+}
+
+input.input-focus-color:focus {
+    border-bottom: 1px solid #d7d7d7!important;
+    box-shadow: 0 1px 0 0 #d7d7d7!important;
+}
+
+header, main, footer, nav {
+    padding-left: 200px;
+}
+
+@media only screen and (max-width : 992px) {
+    header, main, footer {
+        padding-left: 0;
+    }
+}
+
+.sidenav {
+    width: 200px !important;
+}
+
+
+nav .brand-logo {
+    padding: 0 32px !important
+}
+
+.select-wrapper input.select-dropdown {
+    border-bottom: 0px solid #9e9e9e !important;
+    font-size: 14px !important;
+    color: white;
+}
+
+ul.dropdown-content.select-dropdown li span {
+    color: #000; /* no need for !important :) */
+}
+
+#chartdiv {
+    width: 100%;
+    height: 500px;
+}
+
+button.flow-btn {
+    width: 100%
+}
+.row.no-margin-bot{
+    margin-bottom: 0px !important;
+}
+.select-wrapper input.select-dropdown {
+    color: black !important;
+}

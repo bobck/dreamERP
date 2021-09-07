@@ -1,0 +1,12 @@
+{
+  "port": 80,
+  "stdTTL": 43200,
+  "JWTexpiresIn": "8h",
+  "jwtSecret": "_secret_",
+  "mongoUri": "mongodb+srv://_LOGIN_:_PASS_@cluster0.v0a7x.mongodb.net/_NAME_?retryWrites=true&w=majority",
+  "bqKey": {
+    "keyFilename": "./bolt_erp_service_account.json",
+    "projectId": "_bqProjectId_"
+  },
+  "maponKey": "_key_"
+}

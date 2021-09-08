@@ -32,6 +32,7 @@ export const ChartInputApp = (props) => {
     useEffect(() => {
         const response = responseState
         if (!response) return
+        console.log(displayType)
         const allArray = [...response.mileage, ...response[displayType]]
         const parsed = allArray.sort((a, b) => {
             return a.time - b.time
@@ -186,6 +187,7 @@ export const ChartInputApp = (props) => {
                 const date = new Date(curentDate).toISOString().split('T')[0]
                 currentInputRef.current = {...currentInputRef.current, date};
                 datePickElem.value = date;
+                setResponseState(null)
             }
 
             if ([38, 40].includes(event.keyCode)) {
@@ -211,15 +213,14 @@ export const ChartInputApp = (props) => {
                         break;
                     }
                 }
+                setResponseState(null)
             }
 
             if ([16].includes(event.keyCode) && !loadInputRender) {
                 render();
                 return
             }
-
-            setResponseState(null)
-        },
+            },
         [loadInputRender, render],
     );
 

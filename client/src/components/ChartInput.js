@@ -32,7 +32,7 @@ export const ChartInputApp = (props) => {
     useEffect(() => {
         const response = responseState
         if (!response) return
-        console.log(displayType)
+        //console.log(displayType)
         const allArray = [...response.mileage, ...response[displayType]]
         const parsed = allArray.sort((a, b) => {
             return a.time - b.time

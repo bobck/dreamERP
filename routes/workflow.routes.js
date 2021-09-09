@@ -51,13 +51,17 @@ router.post(
         const {unit_id, date, step} = req.body
         const dayHistory = await Mapon.dayHistory(unit_id, date, step)
         const points = dayPoints(dayHistory)
-        req.myCache.set(
-            req.caheName,
-            {
-                unit_id,
-                type: req.type,
-                result: points
-            })
+
+        if (req.myCache) {
+            req.myCache.set(
+                req.caheName,
+                {
+                    unit_id,
+                    type: req.type,
+                    result: points
+                })
+        }
+
         res.json({
             unit_id,
             type: req.type,
@@ -101,13 +105,16 @@ router.post(
             if (req.path === '/boltrides') bolt = boltRidesLog(result);
             if (req.path === '/uklonrides') bolt = uklonRidesLog(result);
 
-            req.myCache.set(
-                req.caheName,
-                {
-                    driver,
-                    type: req.type,
-                    result: bolt
-                })
+            if (req.myCache) {
+                req.myCache.set(
+                    req.caheName,
+                    {
+                        driver,
+                        type: req.type,
+                        result: bolt
+                    })
+            }
+
             res.json({
                 driver,
                 type: req.type,
@@ -128,7 +135,7 @@ router.get(
     check('city', 'Incorrect city').isAlpha(),
     validator,
     cityAccess,
-    cache,
+    // cache,
     async (req, res) => {
         try {
             const city = req.city
@@ -146,7 +153,7 @@ router.get(
             if (req.path === '/schedule') bolt = parseSchedule(result)
 
 
-            req.myCache.set(req.caheName, {type: req.type, result: bolt})
+            // req.myCache.set(req.caheName, {type: req.type, result: bolt})
             res.json({
                 type: req.type,
                 result: bolt

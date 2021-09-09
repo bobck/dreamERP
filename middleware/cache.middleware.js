@@ -7,9 +7,19 @@ module.exports = (req, res, next) => {
     if (req.method === 'OPTIONS') {
         return next()
     }
-
     const cacheBody = req.body
     const cacheQuery = req.query
+
+    const zone = new Date().getTimezoneOffset()
+    const today = new Date(new Date().getTime() - zone * 60000).toISOString().split('T')[0];
+
+    //today not for cache
+    if (req.body.date === today) {
+        // console.log(today,zone)
+        next()
+        return;
+    }
+
 
     const caheName = Object.values(cacheBody).join('') +Object.values(cacheQuery).join('')+ req.path
 

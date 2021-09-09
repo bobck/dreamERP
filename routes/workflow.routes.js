@@ -47,27 +47,27 @@ router.post(
     validator,
     cache,
     async (req, res) => {
-        // try {
-        const {unit_id, date, step} = req.body
-        const dayHistory = await Mapon.dayHistory(unit_id, date, step)
-        const points = dayPoints(dayHistory)
-
-        if (req.myCache) {
-            req.myCache.set(
-                req.caheName,
-                {
-                    unit_id,
-                    type: req.type,
-                    result: points
-                })
-        }
-
-        res.json({
-            unit_id,
-            type: req.type,
-            result: points
-        })
         try {
+            const {unit_id, date, step} = req.body
+            const dayHistory = await Mapon.dayHistory(unit_id, date, step)
+            const points = dayPoints(dayHistory)
+
+            if (req.myCache) {
+                req.myCache.set(
+                    req.caheName,
+                    {
+                        unit_id,
+                        type: req.type,
+                        result: points
+                    })
+            }
+
+            res.json({
+                unit_id,
+                type: req.type,
+                result: points
+            })
+            // try {
         } catch (e) {
             res.status(500)
                 .json({

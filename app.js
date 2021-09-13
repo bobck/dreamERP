@@ -13,6 +13,8 @@ app.use(express.json({extended:true}))
 app.use('/api/auth', require('./routes/auth.routes'))
 app.use('/api/admin', require('./routes/admin.routes'))
 app.use('/api/workflow', require('./routes/workflow.routes'))
+app.use('/api/payback', require('./routes/payback.routes'))
+
 
 if (process.env.NODE_ENV === 'production') {
     app.use('/', express.static(path.join(__dirname, 'client', 'build')))

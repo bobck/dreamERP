@@ -1,4 +1,5 @@
 .idea
 node_modules
+csv
 config/default.json
 bolt_erp_service_account.json

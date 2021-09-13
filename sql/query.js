@@ -22,4 +22,19 @@ FROM \`up-statistics.CITY_NAME.CITY_NAME_shedule\`
 where Date = CURRENT_DATE()
 order by Reg_Number asc`
 
-module.exports = {boltOnlineFlow, boltRides, uklonRides, driversList, scheduleToday}
+const personalWeekSatement = `SELECT 
+The_driver as name,
+Drivers_phone as phone,
+General_tariff as tariff,
+Week_number as week_number,
+Year as year,
+SPLIT(City, "_")[OFFSET(1)] as City,
+ROW_NUMBER() OVER() as id,
+FROM \`up-statistics.Partners.Partners_week_report_Partners_*\`
+where City like '%personal%'
+and The_driver != 'Усі водії'
+and General_tariff != 0
+and Year = @year
+and Week_number = @week_number`
+
+module.exports = {boltOnlineFlow, boltRides, uklonRides, driversList, scheduleToday,personalWeekSatement}

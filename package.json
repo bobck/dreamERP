@@ -25,6 +25,7 @@
     "@google-cloud/bigquery": "^5.8.0",
     "bcrypt": "^5.0.1",
     "config": "^3.3.6",
+    "csv-stringify": "^5.6.5",
     "express": "^4.17.1",
     "express-validator": "^6.12.1",
     "jsonwebtoken": "^8.5.1",

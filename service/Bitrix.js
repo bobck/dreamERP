@@ -47,9 +47,8 @@ const BitrixApi = function (portal, token) {
                 // console.log(preBatchArray[0][2], `ready`)
                 return res.json()
             })
-            .catch(e => {
-                if (['ECONNRESET', 'ENOTFOUND', 'ETIMEDOUT'].includes(e.code)) {
-                    console.log(preBatchArray[0][2], e.code)
+            .catch(e =>  {
+                if (['ECONNRESET', 'ENOTFOUND', 'ETIMEDOUT', 'INTERNAL_SERVER_ERROR'].includes(e.code)) {
                     return this.batch(preBatchArray, halt)
                 }
                 throw {
@@ -59,7 +58,7 @@ const BitrixApi = function (portal, token) {
             })
 
         if (response.error) {
-            if (response.error === 'QUERY_LIMIT_EXCEEDED') {
+            if (response.error === 'QUERY_LIMIT_EXCEEDED' || response.error === 'INTERNAL_SERVER_ERROR') {
                 let seconds = randomInteger(2, 25)
                 // console.log(preBatchArray[0][2], `wait ${seconds} sec`, response.error)
                 await new Promise(resolve => setTimeout(resolve, seconds * 1000));

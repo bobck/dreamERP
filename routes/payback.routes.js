@@ -29,7 +29,7 @@ router.post(
     auth,
     async (req, res) => {
 
-        try {
+        // try {
             const {year, week_number} = req.body
             console.log(`Get from BQ ${year} ${week_number} ...`)
             const bitrixWeekStamp = year.toFixed(0).slice(-1) + week_number.toFixed(0)
@@ -237,6 +237,7 @@ router.post(
             }
 
             saveCsv(integratorArray, `${bitrixWeekStamp}_import`);
+        // console.log('integratorArray',integratorArray)
 
             let importLength = integratorArray.length
             console.log(`Starting import result for ${importLength} deals ...`)
@@ -247,19 +248,23 @@ router.post(
                 let preBatchArray = [];
                 let next = i * getInBatch
                 for (let u = next; u < next + getInBatch; u++) {
+                    // console.log('integratorArray[u]',u,integratorArray[u])
                     let forPush = [
                         bitrix.metods.crm_deal_update,
                         {
-                            id: forDealFind[u].DEAL_ID,
-                            opportunity: forDealFind[u].updated_money,
-                            log: forDealFind[u].LOADED + bitrixWeekStamp
+                            id: integratorArray[u].DEAL_ID,
+                            opportunity: integratorArray[u].updated_money,
+                            log: integratorArray[u].LOADED + bitrixWeekStamp
+                            // id: forDealFind[u].DEAL_ID,
+                            // opportunity: forDealFind[u].updated_money,
+                            // log: forDealFind[u].LOADED + bitrixWeekStamp
                         },
-                        forDealFind[u].id
+                        integratorArray[u].id
                     ]
                     preBatchArray.push(forPush)
-                    if (u === dealFindLength - 1) break
+                    if (u === importLength - 1) break
                 }
-                forImport.push(bitrix._batch(preBatchArray))
+                forImport.push(bitrix.batch(preBatchArray))
                 if (i % fetchPerLoop === 0) {
                     // console.log(`${i/fetchPerLoop}/${importSteps/fetchPerLoop} step... wait ${secDelay} sec`)
                     await new Promise(resolve => setTimeout(resolve, secDelay * 1000));
@@ -296,7 +301,7 @@ router.post(
             //     missedDeals
             // })
 
-            // try {
+            try {
 
         } catch (e) {
             res.status(500)

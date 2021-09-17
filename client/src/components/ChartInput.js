@@ -16,6 +16,7 @@ export const ChartInputApp = (props) => {
         date: new Date(new Date().setHours(new Date().getTimezoneOffset() / 60 * -1)).toISOString().split('T')[0]
     });
     const carNumUnitId = useRef({});
+    const maponNumsForCount = useRef([]);
     const scheduleRef = useRef({});
     const [responseState, setResponseState] = useState(null);
     const [displayType, setDisplayType] = useState("boltrides");
@@ -92,6 +93,9 @@ export const ChartInputApp = (props) => {
                 carNumUnitId.current[car.number] = car.unit_id;
             }
 
+            maponNumsForCount.current = Object.keys(carNumUnitId.current).map(num => parseInt(num.slice(2, 6)))
+
+
             const elemCarData = {
                 data: autocompleteData,
                 onAutocomplete: e => {
@@ -119,12 +123,15 @@ export const ChartInputApp = (props) => {
                                 elemCar.labels[0].classList.add('active')
                                 let unit_id = carNumUnitId.current[maponNum]
                                 currentInputRef.current = {...currentInputRef.current, car: unit_id}
+                                const length = maponNumsForCount.current.filter(num => num === driverFromRefSchedule).length
+                                document.querySelector('.helper-text#drivers-cars-length').innerText = `Similar cars ${length}`
                                 break;
                             }
                         }
                     } else {
                         elemCar.value = ''
                         elemCar.labels[0].classList.remove('active')
+                        document.querySelector('.helper-text#drivers-cars-length').innerText = ``
                     }
                     setResponseState(null)
                 }
@@ -204,14 +211,19 @@ export const ChartInputApp = (props) => {
 
                 const carFromRefSchedule = scheduleRef.current[driver]
                 for (let maponNum of Object.keys(carNumUnitId.current)) {
+
                     if (parseInt(maponNum.slice(2, 6)) === carFromRefSchedule) {
                         const elemCar = document.querySelector('.autocomplete#car');
                         elemCar.value = maponNum
                         elemCar.labels[0].classList.add('active')
                         let unit_id = carNumUnitId.current[maponNum]
                         currentInputRef.current = {...currentInputRef.current, car: unit_id}
+                        const length = maponNumsForCount.current.filter(num => num === carFromRefSchedule).length
+                        document.querySelector('.helper-text#drivers-cars-length').innerText = `Similar cars ${length}`
+                        // console.log('this.num.count', length)
                         break;
                     }
+
                 }
                 setResponseState(null)
             }
@@ -220,7 +232,7 @@ export const ChartInputApp = (props) => {
                 render();
                 return
             }
-            },
+        },
         [loadInputRender, render],
     );
 
@@ -238,6 +250,10 @@ export const ChartInputApp = (props) => {
             console.log(event.target.value)
             console.log(carNumUnitId.current[event.target.value])
             event.target.value = carNumUnitId.current[event.target.value]
+        }
+
+        if (event.target.name === 'driver') {
+            document.querySelector('.helper-text#drivers-cars-length').innerText = ``
         }
 
         currentInputRef.current = {...currentInputRef.current, [event.target.name]: event.target.value}
@@ -277,6 +293,11 @@ export const ChartInputApp = (props) => {
                                 onChange={inputHandler}
                             />
                             <label htmlFor="driver">Driver</label>
+                            <span
+                                className="helper-text"
+                                id="drivers-cars-length"
+                            />
+
                         </div>
                     </div>
                 </div>

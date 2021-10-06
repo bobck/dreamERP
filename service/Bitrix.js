@@ -9,8 +9,8 @@ const BitrixApi = function (portal, token) {
         crm_contact_get: function ({id = ''}) {
             return `crm.contact.get?ID=${id}`
         },
-        crm_deal_list: function ({contact_id = ''}) {
-            return `crm.deal.list?filter[CONTACT_ID]=${contact_id}&filter[CATEGORY_ID]=0select[]=UF_CRM_1631448826169&select[]=OPPORTUNITY&select[]=UF_CRM_1631448826169`
+        crm_deal_list: function ({contact_id = '', category_id = 0}) {
+            return `crm.deal.list?filter[CONTACT_ID]=${contact_id}&filter[CATEGORY_ID]=${category_id}select[]=UF_CRM_1631448826169&select[]=OPPORTUNITY&select[]=UF_CRM_1631448826169`
         },
         crm_deal_update: function ({id = '', opportunity = 0, log = ''}) {
             return `crm.deal.update?ID=${id}&fields[OPPORTUNITY]=${opportunity}&fields[UF_CRM_1631448826169]=${log}`
@@ -47,7 +47,7 @@ const BitrixApi = function (portal, token) {
                 // console.log(preBatchArray[0][2], `ready`)
                 return res.json()
             })
-            .catch(e =>  {
+            .catch(e => {
                 if (['ECONNRESET', 'ENOTFOUND', 'ETIMEDOUT', 'INTERNAL_SERVER_ERROR'].includes(e.code)) {
                     return this.batch(preBatchArray, halt)
                 }

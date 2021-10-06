@@ -37,4 +37,27 @@ and General_tariff != 0
 and Year = @year
 and Week_number = @week_number`
 
-module.exports = {boltOnlineFlow, boltRides, uklonRides, driversList, scheduleToday,personalWeekSatement}
+const ownWeekSatement = `SELECT 
+The_driver as name,
+Drivers_phone as phone,
+General_tariff as tariff,
+Week_number as week_number,
+Year as year,
+City as City,
+ROW_NUMBER() OVER() as id,
+FROM \`up-statistics.Weekly_Report.weekly_report_*\`
+where The_driver != 'Усі водії'
+and General_tariff != 0
+and Year = @year
+and Week_number = @week_number`
+
+const foodSatement = `SELECT 
+CONCAT(First_Name, ' ',SPLIT(Last_Name, "·")[OFFSET(0)]) as name,
+Phone as phone,
+Courier_Earnings__Gross_ as tariff,
+ROW_NUMBER() OVER() as id,
+FROM \`up-statistics.Bolt_food.earning2709\`
+where Courier_Earnings__Gross_ > 0
+`
+
+module.exports = {boltOnlineFlow, boltRides, uklonRides, driversList, scheduleToday,personalWeekSatement,ownWeekSatement,foodSatement}

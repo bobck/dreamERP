@@ -14,7 +14,6 @@ and status = 'completed'
 and DATE(Created_Time) = @date
 order by Created_Time asc
 `
-
 const driversList = `SELECT distinct First_Name FROM \`up-statistics.CITY_NAME.CITY_NAME_getDrivers\``
 
 const scheduleToday = `SELECT LEFT(Reg_Number,4) as Reg_Number,First_Name
@@ -60,4 +59,44 @@ FROM \`up-statistics.Bolt_food.earning2709\`
 where Courier_Earnings__Gross_ > 0
 `
 
-module.exports = {boltOnlineFlow, boltRides, uklonRides, driversList, scheduleToday,personalWeekSatement,ownWeekSatement,foodSatement}
+const boltBrandBonus = `SELECT 
+report.park,
+report.model,
+report.car,
+report.id,
+report.ok_trips,
+report.fraud_trips,
+report.bonus,
+total.trips as total_park_ok_trips,
+total.fraud as total_park_fraud_trips,
+total.bonus as total_park_bonus,
+report.week
+FROM \`up-statistics.Bolt_brand_bonus.weeks\` report
+left join (
+    SELECT 
+    park,
+    sum(ok_trips) as trips,
+    sum(fraud_trips) as fraud,
+    sum(bonus) as bonus
+    FROM \`up-statistics.Bolt_brand_bonus.weeks\` 
+    where week = @week_number and year = @year
+    group by park
+) total
+on (
+    total.park = report.park
+)
+where week = @week_number and year = @year
+order by report.park
+`
+
+module.exports = {
+    boltOnlineFlow,
+    boltRides,
+    uklonRides,
+    driversList,
+    scheduleToday,
+    personalWeekSatement,
+    ownWeekSatement,
+    foodSatement,
+    boltBrandBonus
+}

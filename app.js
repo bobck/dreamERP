@@ -14,6 +14,7 @@ app.use('/api/auth', require('./routes/auth.routes'))
 app.use('/api/admin', require('./routes/admin.routes'))
 app.use('/api/workflow', require('./routes/workflow.routes'))
 app.use('/api/payback', require('./routes/payback.routes'))
+app.use('/api/brandbonus', require('./routes/brandbonus.routes'))
 
 
 if (process.env.NODE_ENV === 'production') {

@@ -8,5 +8,6 @@
     "keyFilename": "./bolt_erp_service_account.json",
     "projectId": "_bqProjectId_"
   },
-  "maponKey": "_key_"
+  "maponKey": "_key_",
+  "brand_bonus_sender": "_mail_"
 }

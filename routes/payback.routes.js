@@ -36,7 +36,7 @@ const saveCsv = (array, name) => {
         });
     })
 }
-
+//TODO: теперь это часть BitrixApi, тут метод нужно удалить
 const batchCombiner = async (result, metod, batchParams, idKey, requestInBatch) => {
     const secDelay = 2
     const fetchPerLoop = 7

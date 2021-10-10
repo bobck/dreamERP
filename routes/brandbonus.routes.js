@@ -4,14 +4,11 @@ const auth = require('../middleware/auth.middleware')
 const config = require('config')
 const BigQueryRepeater = require("../service/BigQuery")
 const {boltBrandBonus} = require("../sql/query");
+const stringify = require('csv-stringify/lib/sync');
+const {sendMail} = require("../service/Gmail")
+
 const BitrixApi = require("../service/Bitrix")
 const bitrix = BitrixApi(config.get('bitrix_portal'), config.get('bitrix_key'))
-const fs = require('fs');
-const stringify = require('csv-stringify/lib/sync');
-const {google} = require('googleapis');
-
-const credentials = JSON.parse(fs.readFileSync('./credentials.json', {encoding: 'utf8'}))
-const token = JSON.parse(fs.readFileSync('./token.json', {encoding: 'utf8'}));
 
 
 router.post(
@@ -28,67 +25,130 @@ router.post(
                 week_number
             })
 
-        const resultArray = result.map(row => [row.park, row.car, row.ok_trips])
-
-        const csv = stringify(resultArray, {
-            header: false,
-            delimiter: ';'
+        // STEP 1
+        //create parkListForBatch, companysObject
+        const parkList = Array.from(new Set(result.map(row => row.park)))
+        const parkListForBatch = parkList.map((park, id) => {
+            return {
+                title: park,
+                id: id + 1
+            }
         })
+        const companysObject = {}
+        for (let company of parkListForBatch) {
+            companysObject[company.id] = company
+        }
+        const missedCompanys = [];
 
-        const {client_secret, client_id, redirect_uris} = credentials.installed;
-        const oAuth2Client = new google.auth.OAuth2(
-            client_id, client_secret, redirect_uris[0]);
-        oAuth2Client.setCredentials(token);
-        const mailId = await sendMail(oAuth2Client, csv);
+        // STEP 2
+        // get compaany mails from list
+        const companys = await bitrix.batchCombiner(parkListForBatch,
+            'crm_company_list',
+            {title: 'title'},
+            'id',
+            50
+        );
 
-        async function sendMail(auth, csv) {
-            const gmail = google.gmail({version: 'v1', auth});
-            const attach = new Buffer.from(csv).toString("base64");
-            const messageParts = [
-                "MIME-Version: 1.0",
-                'From: Teste <bobckx10@gmail.com>',
-                'To: Teste <bob-ck@ukr.net>',
-                `Subject: Subject here`,
-                "Content-Type: multipart/mixed; boundary=012boundary01",
-                '',
-                "--012boundary01",
-                "Content-Type: multipart/alternative; boundary=012boundary02",
-                '',
-                "--012boundary02",
-                "Content-type: text/html; charset=UTF-8",
-                "Content-Transfer-Encoding: quoted-printable",
-                '',
-                'emailBody here, add some text...',
-                '',
-                "--012boundary02--",
-                "--012boundary01",
-                "Content-Type: Application/csv; name=mypdf.csv",
-                'Content-Disposition: attachment; filename=mypdf.csv',
-                "Content-Transfer-Encoding: base64",
-                '',
-                attach,
-                "--012boundary01--",
-            ];
-            const message = messageParts.join('\n');
-            // The body needs to be base64url encoded.
-            const encodedMessage = Buffer.from(message)
-                .toString('base64')
-                .replace(/\+/g, '-')
-                .replace(/\//g, '_')
-                .replace(/=+$/, '');
-
-            const res = await gmail.users.messages.send({
-                userId: 'me',
-                requestBody: {
-                    raw: encodedMessage,
-                },
-            });
-            console.log(res.data);
-            return res.data;
+        // STEP 3
+        // create missedCompanys
+        // add COMPANY_ID, EMAIL to companysObject
+        for (let batch of companys) {
+            const batchedCompanys = batch.result.result;
+            const batchKeys = Object.keys(batchedCompanys);
+            for (let key of batchKeys) {
+                const companyResult = batchedCompanys[key]
+                if (companyResult.length > 0) {
+                    companysObject[key].COMPANY_ID = companyResult[0].ID
+                    if (companyResult[0]?.EMAIL?.length > 0) {
+                        companysObject[key].EMAIL = companyResult[0].EMAIL[0].VALUE
+                        const [parkCars] = result.filter(row => row.park === companysObject[key].title)
+                        companysObject[key].COMMENT = `Bonus W${week_number} ${parkCars.total_park_bonus} UAH to ${companyResult[0].EMAIL[0].VALUE}.`
+                    } else {
+                        missedCompanys.push(companysObject[key])
+                    }
+                } else {
+                    missedCompanys.push(companysObject[key])
+                }
+            }
         }
 
+        // STEP 4
+        // send missedCsv to author
+        const missedArray = missedCompanys.map(company => {
+            return [company.id, company.title, company?.COMPANY_ID]
+        })
+        const missedHeader = ['POSITION', 'TITLE', 'COMPANY_ID']
+        missedArray.unshift(missedHeader)
+
+        const missedCsv = stringify(missedArray, {
+            header: false,
+            delimiter: ','
+        })
+
+        const mail = {
+            subject: `Missed company in Bitrix24 [${week_number} week]`,
+            from: `Bolt Account Manager <${config.get('brand_bonus_sender')}>`,
+            to: `Bolt Account Manager <${config.get('brand_bonus_sender')}>`,
+            body: ``,
+            csvName: `Missed_company_${week_number}_week_${new Date().toISOString()}`,
+            csv: missedCsv
+        }
+        const mailIdMissed = await sendMail(mail);
+        console.log(`Missed_company send mail info: ${JSON.stringify(mailIdMissed)}`)
+
+        // STEP 5
+        // put available company with mail to company'sMail
+        // sent all of them csv
+        const companysMail = Object.values(companysObject).filter(company => company.MAIL)
+        for (let company of companysMail) {
+            const parkCars = result.filter(row => row.park === company.title)
+            const parkArray = parkCars.map(row => [row.park, row.model, row.car, row.id, row.ok_trips, row.fraud_trips, row.bonus])
+            const oneCar = parkCars[0];
+            const hearer = ['Park_name', 'Car_model', 'Car_plate_number', 'Id', 'Counted_trips', 'Fraud_trips', 'Bonus']
+            const lastRow = [oneCar.park, 'Total', '', '', oneCar.total_park_ok_trips, oneCar.total_park_fraud_trips, oneCar.total_park_bonus]
+            parkArray.push(lastRow)
+            parkArray.unshift(hearer)
+
+            const parkCsv = stringify(parkArray, {
+                header: false,
+                delimiter: ';'
+            })
+            const mail = {
+                subject: `Brand bonus report ${company.title} week ${week_number}`,
+                from: `Bolt Account Manager <${config.get('brand_bonus_sender')}>`,
+                to: `${company.title} <${company.EMAIL}>`,
+                body: `Total bonus: ${oneCar.total_park_bonus}`,
+                csvName: `Brand bonus week ${week_number} ${oneCar.park}`,
+                csv: parkCsv
+            }
+            //TODO раскоментить const что бы начали отправлятяся письма
+            // const mailId = await sendMail(mail);
+
+            // console.log(mailId)
+            // break
+        }
+
+        // STEP 6
+        // put comment to bitrix
+        const comments = Object.values(companysObject).filter(c => c.COMMENT)
+        const commentsResult = await bitrix.batchCombiner(comments,
+            'crm_timeline_comment_add',
+            {
+                id: 'COMPANY_ID',
+                comment: 'COMMENT'
+            },
+            'COMPANY_ID',
+            25
+        );
+        console.log('Send done.')
+
+
         res.status(200).json({
-            mailId
+            companys,
+            companysObject,
+            companysMail,
+            missedCompanys,
+            commentsResult
         })
     })
 

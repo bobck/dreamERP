@@ -14,6 +14,12 @@ const BitrixApi = function (portal, token) {
         },
         crm_deal_update: function ({id = '', opportunity = 0, log = ''}) {
             return `crm.deal.update?ID=${id}&fields[OPPORTUNITY]=${opportunity}&fields[UF_CRM_1631448826169]=${log}`
+        },
+        crm_company_list: function ({title = ''}) {
+            return `crm.company.list?filter[TITLE]=${title}&select[]=EMAIL`
+        },
+        crm_timeline_comment_add: function ({id = '', type = 'company', comment = ''}) {
+            return `crm.timeline.comment.add?fields[ENTITY_ID]=${id}&fields[ENTITY_TYPE]=${type}&fields[COMMENT]=${comment}`
         }
     }
 
@@ -72,6 +78,38 @@ const BitrixApi = function (portal, token) {
         }
 
         return response
+    }
+
+    this.batchCombiner = async (result, metod, batchParams, idKey, requestInBatch) => {
+        const secDelay = 2
+        const fetchPerLoop = 7
+
+        let statementDrivers = result.length
+        let allSteps = Math.ceil(statementDrivers / requestInBatch);
+        let all = []
+        console.log(`Running batchCombiner ...`)
+        for (let i = 0; i < allSteps; i++) {
+            let preBatchArray = [];
+
+            let next = i * requestInBatch
+            for (let u = next; u < next + requestInBatch; u++) {
+
+                // creates query from batchParams
+                let query = {}
+                Object.keys(batchParams).forEach(key => {
+                    let param_name = batchParams[key];
+                    query[key] = result[u][param_name]
+                })
+                let forPush = [this.metods[metod], query, result[u][idKey]]
+                preBatchArray.push(forPush)
+                if (u === statementDrivers - 1) break
+            }
+            all.push(this.batch(preBatchArray))
+            if (i % fetchPerLoop === 0) {
+                await new Promise(resolve => setTimeout(resolve, secDelay * 1000));
+            }
+        }
+        return Promise.all(all);
     }
 
 

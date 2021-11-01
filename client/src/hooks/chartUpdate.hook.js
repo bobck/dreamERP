@@ -17,13 +17,14 @@ export const сhartUpdateApp = () => {
     const updateChartData = async ({
                                        date,
                                        driver,
-                                       car
+                                       car,
+                                       time_offset
                                    },
                                    setResponseState, responseState, setLoadInputRender, setOnlinePresent) => {
         if (responseState) return responseState
         try {
             const step = '3'
-            if (!date || !driver || !car) {
+            if (!date || !driver || !car || !time_offset) {
                 setResponseState(false)
                 setLoadInputRender(false)
                 return
@@ -39,7 +40,7 @@ export const сhartUpdateApp = () => {
                     , headers))
             promiseArray.push(
                 request('/api/workflow/mileage', 'POST',
-                    {unit_id: car, step, date}
+                    {unit_id: car, step, date, time_offset}
                     , headers))
             promiseArray.push(
                 request('/api/workflow/boltrides', 'POST',
@@ -47,7 +48,7 @@ export const сhartUpdateApp = () => {
                     , headers))
             promiseArray.push(
                 request('/api/workflow/uklonrides', 'POST',
-                    {city: authContext.currentCity, driver, date}
+                    {city: authContext.currentCity, driver, date, time_offset}
                     , headers))
 
             const response = {}

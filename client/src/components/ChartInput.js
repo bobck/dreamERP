@@ -297,23 +297,38 @@ export const ChartInputApp = (props) => {
                                 className="helper-text"
                                 id="drivers-cars-length"
                             />
-
                         </div>
                     </div>
                 </div>
                 <div className="row no-margin-bot">
-                    <input
-                        type="text"
-                        id="date"
-                        name="date"
-                        className="datepicker center"/>
-                    <button
-                        className="btn blue-grey darken-3 btn-space flow-btn"
-                        onClick={render}
-                        disabled={loadInputRender}
-                        onChange={inputHandler}
-                    >Update
-                    </button>
+                    <div className="col s8">
+                        <input
+                            type="text"
+                            id="date"
+                            name="date"
+                            className="datepicker center"/>
+                        <button
+                            className="btn blue-grey darken-3 btn-space flow-btn"
+                            onClick={render}
+                            disabled={loadInputRender}
+                            onChange={inputHandler}
+                        >Update
+                        </button>
+                    </div>
+                    <div className="col s4">
+                        <div className="input-field">
+                            <i className="small material-icons prefix ">access_time</i>
+                            <input
+                                //TODO сделать только цифры и значение по умолчанию
+                                type="number"
+                                id="time_offset"
+                                name="time_offset"
+                                className="validate"
+                                onChange={inputHandler}
+                            />
+                            <label htmlFor="time_offset">Time zone</label>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div className="col s6">

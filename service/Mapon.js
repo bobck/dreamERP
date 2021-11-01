@@ -40,12 +40,16 @@ class MaponApi {
     }//
 
     #dayPointsArray(date, step = 3, time_offset) {
-        if (!time_offset) time_offset = 0//(new Date().getTimezoneOffset() / 60) * -1
-        const startDayTime = new Date(date).setHours(0, 0, 0, 0)
+        //TODO разобратся что за временный сдвиг и вынести его куда то
+        const baseShift  = 3
+        // if (!time_offset) time_offset = 0//(new Date().getTimezoneOffset() / 60) * -1
+        time_offset = baseShift-time_offset
+        const startDayTime = new Date(date).setHours(time_offset, 0, 0, 0)
         const pointsArray = []
         let stepTime = startDayTime
         while (stepTime < startDayTime + (60000 * 1441)) {
             const pointTime = new Date(stepTime).toJSON().replace('.000Z', 'Z');
+            // console.log('pointTime',pointTime)//
             pointsArray.push(pointTime)
             stepTime = stepTime + (60000 * step);
         }

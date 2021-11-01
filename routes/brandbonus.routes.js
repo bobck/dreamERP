@@ -102,12 +102,14 @@ router.post(
         const companysMail = Object.values(companysObject).filter(company => company.EMAIL)
         for (let company of companysMail) {
             const parkCars = result.filter(row => row.park === company.title)
-            const parkArray = parkCars.map(row => [row.park, row.model, row.car, row.id, row.ok_trips, row.fraud_trips, row.bonus])
+            const parkArray = parkCars.map(row => [row.park, row.model, row.car, row.id, row.all_trips, row.ok_trips, row.fraud_trips, row.bonus])
             const oneCar = parkCars[0];
-            const hearer = ['Park_name', 'Car_model', 'Car_plate_number', 'Id', 'Counted_trips', 'Fraud_trips', 'Bonus']
+            // const hearer = ['Park_name', 'Car_model', 'Car_plate_number', 'Id', 'Counted_trips', 'Fraud_trips', 'Bonus']
+            const header = ['Park_name', 'Car_model', 'Car_plate_number', 'Id', 'All_trips', 'Counted_trips', 'Fraud_trips', 'Bonus']
+
             const lastRow = [oneCar.park, 'Total', '', '', oneCar.total_park_ok_trips, oneCar.total_park_fraud_trips, oneCar.total_park_bonus]
             parkArray.push(lastRow)
-            parkArray.unshift(hearer)
+            parkArray.unshift(header)
 
             const parkCsv = stringify(parkArray, {
                 header: false,

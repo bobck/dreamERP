@@ -71,14 +71,14 @@ total.trips as total_park_ok_trips,
 total.fraud as total_park_fraud_trips,
 total.bonus as total_park_bonus,
 report.week
-FROM \`up-statistics.Bolt_brand_bonus.weeks\` report
+FROM \`up-statistics.Bolt_brand_bonus.week*\` report
 left join (
     SELECT 
     park,
     sum(ok_trips) as trips,
     sum(fraud_trips) as fraud,
     sum(bonus) as bonus
-    FROM \`up-statistics.Bolt_brand_bonus.weeks\` 
+    FROM \`up-statistics.Bolt_brand_bonus.week*\` 
     where week = @week_number and year = @year
     group by park
 ) total

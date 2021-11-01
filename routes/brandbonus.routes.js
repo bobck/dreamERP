@@ -99,7 +99,7 @@ router.post(
         // STEP 5
         // put available company with mail to company'sMail
         // sent all of them csv
-        const companysMail = Object.values(companysObject).filter(company => company.MAIL)
+        const companysMail = Object.values(companysObject).filter(company => company.EMAIL)
         for (let company of companysMail) {
             const parkCars = result.filter(row => row.park === company.title)
             const parkArray = parkCars.map(row => [row.park, row.model, row.car, row.id, row.ok_trips, row.fraud_trips, row.bonus])
@@ -111,20 +111,22 @@ router.post(
 
             const parkCsv = stringify(parkArray, {
                 header: false,
-                delimiter: ';'
+                delimiter: ','
             })
+
+            const body = `Добрый день уважаемый партнер! 👋🏻<br>Отправляем вам отчет бонуса за брендирование за W${week_number} <br><br>Если вы не нашли автомобиль пожалуйста сообщите нам , что бы мы проверили и начислили компенсацию.`
             const mail = {
                 subject: `Brand bonus report ${company.title} week ${week_number}`,
                 from: `Bolt Account Manager <${config.get('brand_bonus_sender')}>`,
+                // to: `${company.title} <bob-ck@ukr.net>`,
                 to: `${company.title} <${company.EMAIL}>`,
-                body: `Total bonus: ${oneCar.total_park_bonus}`,
+                body,
                 csvName: `Brand bonus week ${week_number} ${oneCar.park}`,
                 csv: parkCsv
             }
             //TODO раскоментить const что бы начали отправлятяся письма
-            // const mailId = await sendMail(mail);
-
-            // console.log(mailId)
+            const mailId = await sendMail(mail);
+            console.log(company.title, mailId)
             // break
         }
 

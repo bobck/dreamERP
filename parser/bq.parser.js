@@ -2,7 +2,7 @@ const onTrip = '#008000';
 const toClient = '#81bd81';
 const empty = '#848484'
 
-const dispatcherLog = (queryResults, driverName) => {
+const dispatcherLog = (queryResults, driverName, time_offset) => {
     const delayMinutes = 7 * 60000;
 
     try {

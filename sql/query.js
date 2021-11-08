@@ -1,4 +1,4 @@
-const boltOnlineFlow = `SELECT * FROM \`up-statistics.CITY_NAME.CITY_NAME_DispatcherLog\` 
+const boltOnlineFlow = `SELECT * FROM \`up-statistics.CITY_NAME.CITY_NAME_DispatcherLog_n\` 
 where Data like @driver and DATE(Created_Time) = @date
 order by Created_Time asc`
 

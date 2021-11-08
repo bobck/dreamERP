@@ -101,7 +101,7 @@ router.post(
                     date
                 })
             let bolt;
-            if (req.path === '/boltonlineflow') bolt = dispatcherLog(result, driver)
+            if (req.path === '/boltonlineflow') bolt = dispatcherLog(result, driver, time_offset)
             if (req.path === '/boltrides') bolt = boltRidesLog(result);
             if (req.path === '/uklonrides') bolt = uklonRidesLog(result, time_offset);
 

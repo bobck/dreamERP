@@ -169,6 +169,9 @@ export const ChartInputApp = (props) => {
 
     useEffect(() => {
         initialInputs()
+        const elemTimeZone = document.querySelector('#time_offset')
+        elemTimeZone.labels[0].classList.add('active')
+        elemTimeZone.value = new Date().getTimezoneOffset() / 60 * -1
     }, [initialInputs, authContext.currentCity]);
 
     const schedulePosition = useRef(-1);

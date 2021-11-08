@@ -44,6 +44,7 @@ class MaponApi {
         const baseShift  = 3
         // if (!time_offset) time_offset = 0//(new Date().getTimezoneOffset() / 60) * -1
         time_offset = baseShift-time_offset
+        time_offset = 0
         const startDayTime = new Date(date).setHours(time_offset, 0, 0, 0)
         const pointsArray = []
         let stepTime = startDayTime

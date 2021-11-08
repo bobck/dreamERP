@@ -125,7 +125,7 @@ const parseSchedule = (queryResults) => {
 
     const out = {}
     for (let row of queryResults) {
-        out[row[nameField].replace('(UK) ', '')] = parseInt(row[numberField])
+        out[row[nameField].replace('(UK) ', '')] = row[numberField]//parseInt(row[numberField])
     }
     return out
 }

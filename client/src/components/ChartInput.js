@@ -94,7 +94,7 @@ export const ChartInputApp = (props) => {
                 carNumUnitId.current[car.number] = car.unit_id;
             }
 
-            maponNumsForCount.current = Object.keys(carNumUnitId.current).map(num => parseInt(num.slice(2, 6)))
+            maponNumsForCount.current = Object.keys(carNumUnitId.current).map(num => num.slice(2, 6))
 
 
             const elemCarData = {
@@ -118,14 +118,15 @@ export const ChartInputApp = (props) => {
                     const driverFromRefSchedule = scheduleRef.current[e]
                     //прописать авто если есть водитель
                     if (driverFromRefSchedule) {
+                        const numbersOnlySchedule = driverFromRefSchedule.slice(0,4)
                         for (let maponNum of Object.keys(carNumUnitId.current)) {
-                            if (parseInt(maponNum.slice(2, 6)) === driverFromRefSchedule) {
+                            if (maponNum.slice(2, 6) === numbersOnlySchedule) {
                                 elemCar.value = maponNum
                                 elemCar.labels[0].classList.add('active')
                                 let unit_id = carNumUnitId.current[maponNum]
                                 currentInputRef.current = {...currentInputRef.current, car: unit_id}
-                                const length = maponNumsForCount.current.filter(num => num === driverFromRefSchedule).length
-                                document.querySelector('.helper-text#drivers-cars-length').innerText = `Similar cars ${length}`
+                                const length = maponNumsForCount.current.filter(num => num === numbersOnlySchedule).length
+                                document.querySelector('.helper-text#drivers-cars-length').innerText = `Similar cars ${length} (Schedule: ${driverFromRefSchedule})`
                                 break;
                             }
                         }
@@ -215,16 +216,17 @@ export const ChartInputApp = (props) => {
                 elemDriver.labels[0].classList.add('active')
 
                 const carFromRefSchedule = scheduleRef.current[driver]
+                // console.log(carFromRefSchedule.slice(0,4))
                 for (let maponNum of Object.keys(carNumUnitId.current)) {
-
-                    if (parseInt(maponNum.slice(2, 6)) === carFromRefSchedule) {
+                    const numbersOnlySchedule = carFromRefSchedule.slice(0,4)
+                    if (maponNum.slice(2, 6) === numbersOnlySchedule) {
                         const elemCar = document.querySelector('.autocomplete#car');
                         elemCar.value = maponNum
                         elemCar.labels[0].classList.add('active')
                         let unit_id = carNumUnitId.current[maponNum]
                         currentInputRef.current = {...currentInputRef.current, car: unit_id}
-                        const length = maponNumsForCount.current.filter(num => num === carFromRefSchedule).length
-                        document.querySelector('.helper-text#drivers-cars-length').innerText = `Similar cars ${length}`
+                        const length = maponNumsForCount.current.filter(num => num === numbersOnlySchedule).length
+                        document.querySelector('.helper-text#drivers-cars-length').innerText = `Similar cars ${length} (Schedule: ${carFromRefSchedule})`
                         // console.log('this.num.count', length)
                         break;
                     }
@@ -272,7 +274,7 @@ export const ChartInputApp = (props) => {
 
     return (
         <>
-            <div className="col s12 m4 l2">
+            <div className="col s12 m4 l3">
                 <div className="input-field">
                     <i className="small material-icons prefix ">access_time</i>
                     <input
@@ -329,7 +331,7 @@ export const ChartInputApp = (props) => {
                     </p>
                 </form>
             </div>
-            <div className="col s12 m8 l6">
+            <div className="col s12 m8 l9">
                 <div className="row no-margin-bot">
                     <div className="col s12 l5">
                         <div className="input-field">

@@ -149,6 +149,7 @@ router.get(
                     city
                 })
             let bolt
+            // console.log('req.path',result)
             if (req.path === '/drivers') bolt = parseDriversList(result)
             if (req.path === '/schedule') bolt = parseSchedule(result)
 

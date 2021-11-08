@@ -13,7 +13,8 @@ export const ChartInputApp = (props) => {
     const {request, error, clearError} = useHttp();
     const message = useMessage()
     const currentInputRef = useRef({
-        date: new Date(new Date().setHours(new Date().getTimezoneOffset() / 60 * -1)).toISOString().split('T')[0]
+        date: new Date(new Date().setHours(new Date().getTimezoneOffset() / 60 * -1)).toISOString().split('T')[0],
+        time_offset: new Date().getTimezoneOffset() / 60 * -1
     });
     const carNumUnitId = useRef({});
     const maponNumsForCount = useRef([]);
@@ -186,6 +187,7 @@ export const ChartInputApp = (props) => {
 
     const controlPanel = useCallback(
         (event) => {
+            event.preventDefault()
             // console.log(event.keyCode)
             if ([37, 39].includes(event.keyCode)) {
                 const datePickElem = document.querySelector('.datepicker')
@@ -270,71 +272,19 @@ export const ChartInputApp = (props) => {
 
     return (
         <>
-            <div className="col s6">
-                <div className="row no-margin-bot">
-                    <div className="col s4">
-                        <div className="input-field">
-                            <i className="small material-icons prefix ">directions_car</i>
-                            <input
-                                type="text"
-                                id="car"
-                                name="car"
-                                className="autocomplete"
-                                // onChange={inputHandler}
-                            />
-                            <label htmlFor="car">Car</label>
-                        </div>
-                    </div>
-                    <div className="col s8">
-                        <div className="input-field">
-                            <i className="small material-icons prefix ">face</i>
-                            <input
-                                type="text"
-                                id="driver"
-                                name="driver"
-                                className="autocomplete"
-                                onChange={inputHandler}
-                            />
-                            <label htmlFor="driver">Driver</label>
-                            <span
-                                className="helper-text"
-                                id="drivers-cars-length"
-                            />
-                        </div>
-                    </div>
+            <div className="col s12 m4 l2">
+                <div className="input-field">
+                    <i className="small material-icons prefix ">access_time</i>
+                    <input
+                        //TODO сделать только цифры и значение по умолчанию
+                        type="number"
+                        id="time_offset"
+                        name="time_offset"
+                        className="validate"
+                        onChange={inputHandler}
+                    />
+                    <label htmlFor="time_offset">Time zone</label>
                 </div>
-                <div className="row no-margin-bot">
-                    <div className="col s8">
-                        <input
-                            type="text"
-                            id="date"
-                            name="date"
-                            className="datepicker center"/>
-                        <button
-                            className="btn blue-grey darken-3 btn-space flow-btn"
-                            onClick={render}
-                            disabled={loadInputRender}
-                            onChange={inputHandler}
-                        >Update
-                        </button>
-                    </div>
-                    <div className="col s4">
-                        <div className="input-field">
-                            <i className="small material-icons prefix ">access_time</i>
-                            <input
-                                //TODO сделать только цифры и значение по умолчанию
-                                type="number"
-                                id="time_offset"
-                                name="time_offset"
-                                className="validate"
-                                onChange={inputHandler}
-                            />
-                            <label htmlFor="time_offset">Time zone</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div className="col s6">
                 <form
                     id="types"
                     action="#">
@@ -379,8 +329,56 @@ export const ChartInputApp = (props) => {
                     </p>
                 </form>
             </div>
-
-
+            <div className="col s12 m8 l6">
+                <div className="row no-margin-bot">
+                    <div className="col s12 l4">
+                        <div className="input-field">
+                            <i className="small material-icons prefix ">directions_car</i>
+                            <input
+                                type="text"
+                                id="car"
+                                name="car"
+                                className="autocomplete"
+                                // onChange={inputHandler}
+                            />
+                            <label htmlFor="car">Car</label>
+                        </div>
+                    </div>
+                    <div className="col s12 l8">
+                        <div className="input-field">
+                            <i className="small material-icons prefix ">face</i>
+                            <input
+                                type="text"
+                                id="driver"
+                                name="driver"
+                                className="autocomplete"
+                                onChange={inputHandler}
+                            />
+                            <label htmlFor="driver">Driver</label>
+                            <span
+                                className="helper-text"
+                                id="drivers-cars-length"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="row no-margin-bot">
+                    <div className="col s12 m12 l12">
+                        <input
+                            type="text"
+                            id="date"
+                            name="date"
+                            className="datepicker center"/>
+                        <button
+                            className="btn blue-grey darken-3 btn-space flow-btn"
+                            onClick={render}
+                            disabled={loadInputRender}
+                            onChange={inputHandler}
+                        >Update
+                        </button>
+                    </div>
+                </div>
+            </div>
         </>
     );
 }

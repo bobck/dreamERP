@@ -187,7 +187,6 @@ export const ChartInputApp = (props) => {
 
     const controlPanel = useCallback(
         (event) => {
-            event.preventDefault()
             // console.log(event.keyCode)
             if ([37, 39].includes(event.keyCode)) {
                 const datePickElem = document.querySelector('.datepicker')
@@ -203,6 +202,7 @@ export const ChartInputApp = (props) => {
             }
 
             if ([38, 40].includes(event.keyCode)) {
+                event.preventDefault()
                 const scheduleKeys = Object.keys(scheduleRef.current)
                 if (event.keyCode === 38) schedulePosition.current = schedulePosition.current - 1
                 if (event.keyCode === 40) schedulePosition.current = schedulePosition.current + 1
@@ -252,8 +252,8 @@ export const ChartInputApp = (props) => {
 
     const inputHandler = (event) => {
         if (event.target.name === 'car') {
-            console.log(event.target.value)
-            console.log(carNumUnitId.current[event.target.value])
+            // console.log(event.target.value)
+            // console.log(carNumUnitId.current[event.target.value])
             event.target.value = carNumUnitId.current[event.target.value]
         }
 

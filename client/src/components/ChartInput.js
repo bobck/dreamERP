@@ -331,7 +331,7 @@ export const ChartInputApp = (props) => {
             </div>
             <div className="col s12 m8 l6">
                 <div className="row no-margin-bot">
-                    <div className="col s12 l4">
+                    <div className="col s12 l5">
                         <div className="input-field">
                             <i className="small material-icons prefix ">directions_car</i>
                             <input
@@ -344,7 +344,7 @@ export const ChartInputApp = (props) => {
                             <label htmlFor="car">Car</label>
                         </div>
                     </div>
-                    <div className="col s12 l8">
+                    <div className="col s12 l7">
                         <div className="input-field">
                             <i className="small material-icons prefix ">face</i>
                             <input

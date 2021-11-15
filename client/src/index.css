@@ -1,7 +1,8 @@
 @import "~materialize-css/dist/css/materialize.min.css";
 
 button.btn-space{
-    margin-right: 1rem !important;
+    /*margin-right: 1rem !important;*/
+    width: 100%
 }
 
 input.input-focus-color {

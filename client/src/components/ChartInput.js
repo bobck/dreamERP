@@ -168,7 +168,7 @@ export const ChartInputApp = (props) => {
                 }
             }
 
-            console.log('isMounted.current',isMounted.current)
+            // console.log('isMounted.current',isMounted.current)
 
             if (isMounted.current){
                 window.M.Autocomplete.init(elemCar, elemCarData);

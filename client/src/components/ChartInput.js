@@ -19,6 +19,8 @@ export const ChartInputApp = (props) => {
     const carNumUnitId = useRef({});
     const maponNumsForCount = useRef([]);
     const scheduleRef = useRef({});
+    const isMounted = React.useRef(true)
+
     const [responseState, setResponseState] = useState(null);
     const [displayType, setDisplayType] = useState("boltrides");
     const [loadInputRender, setLoadInputRender] = useState(true);
@@ -87,9 +89,10 @@ export const ChartInputApp = (props) => {
 
             const carsPromise = request('/api/workflow/cars', 'GET',
                 null, headers)
-
             //авто
             const carList = await carsPromise
+            // console.log('carList',carList)
+
             const autocompleteData = {}
             for (let car of carList.result) {
                 autocompleteData[car.number] = null;
@@ -110,11 +113,13 @@ export const ChartInputApp = (props) => {
                     setResponseState(null)
                 }
             }
-            window.M.Autocomplete.init(elemCar, elemCarData);
-            elemCar.disabled = false
 
+            // window.M.Autocomplete.init(elemCar, elemCarData);
+            // elemCar.disabled = false
             //водители
             const driversList = await driversPromise
+            // console.log('driversList',driversList)
+
             const elemDriverData = {
                 data: driversList.result,
                 onAutocomplete: e => {
@@ -142,8 +147,9 @@ export const ChartInputApp = (props) => {
                     setResponseState(null)
                 }
             }
-            window.M.Autocomplete.init(elemDriver, elemDriverData);
-            elemDriver.disabled = false
+            // console.log('elemDriver, elemDriverData',elemDriver, elemDriverData)
+            // window.M.Autocomplete.init(elemDriver, elemDriverData);
+            // elemDriver.disabled = false
 
             //дата
             const elemDataOptions = {
@@ -161,8 +167,17 @@ export const ChartInputApp = (props) => {
                     setResponseState(null)
                 }
             }
-            window.M.Datepicker.init(elemsDate, elemDataOptions);
-            elemsDate.disabled = false
+
+            console.log('isMounted.current',isMounted.current)
+
+            if (isMounted.current){
+                window.M.Autocomplete.init(elemCar, elemCarData);
+                elemCar.disabled = false
+                window.M.Autocomplete.init(elemDriver, elemDriverData);
+                elemDriver.disabled = false
+                window.M.Datepicker.init(elemsDate, elemDataOptions);
+                elemsDate.disabled = false
+            }
 
             //график
             const schedule = await schedulePromise;
@@ -174,8 +189,12 @@ export const ChartInputApp = (props) => {
     );
 
     useEffect(() => {
-        //TODO баг, если не дожидаясь завершения initialInputs уйти со страницы, то все сломается((
+        //fixed баг, если не дожидаясь завершения initialInputs уйти со страницы, то все сломается
         initialInputs()
+        return () => {
+            isMounted.current = false;
+            setLoadInputRender(false)
+        };
     }, [initialInputs, authContext.currentCity]);
 
     const schedulePosition = useRef(-1);

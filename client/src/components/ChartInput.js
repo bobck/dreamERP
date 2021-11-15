@@ -59,6 +59,10 @@ export const ChartInputApp = (props) => {
 
     const initialInputs = useCallback(async () => {
             setLoadInputRender(true)
+            const elemTimeZone = document.querySelector('#time_offset')
+            elemTimeZone.labels[0].classList.add('active')
+            elemTimeZone.value = new Date().getTimezoneOffset() / 60 * -1
+
             const elemCar = document.querySelector('.autocomplete#car');
             const elemDriver = document.querySelector('.autocomplete#driver');
             const elemsDate = document.querySelectorAll('.datepicker');
@@ -170,10 +174,8 @@ export const ChartInputApp = (props) => {
     );
 
     useEffect(() => {
+        //TODO баг, если не дожидаясь завершения initialInputs уйти со страницы, то все сломается((
         initialInputs()
-        const elemTimeZone = document.querySelector('#time_offset')
-        elemTimeZone.labels[0].classList.add('active')
-        elemTimeZone.value = new Date().getTimezoneOffset() / 60 * -1
     }, [initialInputs, authContext.currentCity]);
 
     const schedulePosition = useRef(-1);

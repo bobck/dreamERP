@@ -89,12 +89,14 @@ export const RegisterPage = () => {
                         </div>
                     </div>
                     <div className="card-action">
-                        <button
-                            className="btn grey"
-                            onClick={registerHandler}
-                            disabled={loading}
-                        >Registration
-                        </button>
+                        <p>
+                            <button
+                                className="btn grey btn-space"
+                                onClick={registerHandler}
+                                disabled={loading}
+                            >Registration
+                            </button>
+                        </p>
                     </div>
                 </div>
             </div>

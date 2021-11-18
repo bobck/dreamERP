@@ -15,7 +15,7 @@ const invites = ['dreamerp']
 router.post(
     '/register',
     [
-        check('email', 'Incorrect mail').isEmail(),
+        check('email', 'Incorrect mail').normalizeEmail().isEmail(),
         check('password', 'Password to short, minimum 8 symbols allowed').isLength(8),
         check('username', 'Username to short').isLength(3)
     ],
@@ -64,6 +64,7 @@ router.post(
     ], async (req, res) => {
         try {
             const {email, password} = req.body
+            console.log(email)
             const user = await User.findOne({email});
             //TODO: заменить подсказки, что бы не было ясно что конкретно не найдено
             if (!user) {

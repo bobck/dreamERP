@@ -10,19 +10,12 @@ export const UserList = ({users}) => {
 
 
 //TODO закрывать кнопку если изменений нет
-    const onChipAction = (e, chip) => {
+    const onChipAction = (e) => {
         if (!e[0]) return;
         const userChipId = e[0].id;
         const user = users.filter(user => user._id === userChipId)
         if (user.length !== 1) return
-        // const chipsData = e[0].M_Chips.chipsData
-        //  const userCity = user[0].city;
-        //  const chipsDataArray = chipsData.map(data => data.tag)
-        //  const newCity = chipsDataArray.filter(chipCity => !userCity.includes(chipCity))
-        // if (newCity.length > 0) {
         return document.querySelector('[id="' + userChipId + '"].btn').classList.remove('disabled')
-        // }
-        // return document.querySelector('[id="' + userChipId + '"].btn').classList.add('disabled')
     }
 
     const initChips = () => {

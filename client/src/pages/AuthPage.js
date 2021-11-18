@@ -21,7 +21,7 @@ export const AuthPage = () => {
     const loginHandler = async () => {
         try {
             const data = await request('/api/auth/login', 'POST', {...form})
-            authContext.login(data.token, data.userId,data.userName,data.userMail)
+            authContext.login(data.token, data.userId, data.userName, data.userMail)
             authContext.setAuthenticated(true)
         } catch (e) {
         }
@@ -64,18 +64,27 @@ export const AuthPage = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="card-action">
-                        <button
-                            className="btn blue-grey darken-3 btn-space"
-                            onClick={loginHandler}
-                            disabled={loading}
-                        >Login
-                        </button>
-                        <Link to="/register" className="btn grey">Registration</Link>
+
+                    <div className="card-action ">
+                        <p>
+                            <button
+                                className="btn blue-grey darken-3 btn-space"
+                                onClick={loginHandler}
+                                disabled={loading}
+                            >Login
+                            </button>
+                        </p>
+                        <p>
+                            <Link
+                                to="/register"
+                                className=""
+                            >Registration
+                            </Link>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
 
-)
+    )
 }

@@ -17,7 +17,8 @@ order by Created_Time asc
 
 const driversList = `SELECT distinct First_Name FROM \`up-statistics.CITY_NAME.CITY_NAME_getDrivers\``
 
-const scheduleToday = `SELECT LEFT(Reg_Number,4) as Reg_Number,First_Name
+// const scheduleToday = `SELECT LEFT(Reg_Number,4) as Reg_Number,First_Name//
+const scheduleToday = `SELECT Reg_Number,First_Name
 FROM \`up-statistics.CITY_NAME.CITY_NAME_shedule\` 
 where Date = CURRENT_DATE()
 order by Reg_Number asc`

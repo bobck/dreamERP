@@ -48,9 +48,9 @@ router.post(
     cache,
     async (req, res) => {
         try {
-            const {unit_id, date, step} = req.body
-            const dayHistory = await Mapon.dayHistory(unit_id, date, step)
-            const points = dayPoints(dayHistory)
+            const {unit_id, date, step, time_offset} = req.body
+            const dayHistory = await Mapon.dayHistory(unit_id, date, step, time_offset)
+            const points = dayPoints(dayHistory, time_offset)
 
             if (req.myCache) {
                 req.myCache.set(
@@ -91,8 +91,8 @@ router.post(
             if (req.path === '/boltonlineflow') req.customquery = boltOnlineFlow;
             if (req.path === '/boltrides') req.customquery = boltRides;
             if (req.path === '/uklonrides') req.customquery = uklonRides;
-
-            const {city, driver, date} = req.body
+//TODO прописать валидаторы на time_offset
+            const {city, driver, date, time_offset} = req.body
             const [result] = await BigQueryRepeater.runQuery(
                 city,
                 req.customquery,
@@ -101,9 +101,9 @@ router.post(
                     date
                 })
             let bolt;
-            if (req.path === '/boltonlineflow') bolt = dispatcherLog(result, driver)
+            if (req.path === '/boltonlineflow') bolt = dispatcherLog(result, driver, time_offset)
             if (req.path === '/boltrides') bolt = boltRidesLog(result);
-            if (req.path === '/uklonrides') bolt = uklonRidesLog(result);
+            if (req.path === '/uklonrides') bolt = uklonRidesLog(result, time_offset);
 
             if (req.myCache) {
                 req.myCache.set(
@@ -149,6 +149,7 @@ router.get(
                     city
                 })
             let bolt
+            // console.log('req.path',result)
             if (req.path === '/drivers') bolt = parseDriversList(result)
             if (req.path === '/schedule') bolt = parseSchedule(result)
 

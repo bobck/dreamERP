@@ -13,10 +13,14 @@ export const ChartInputApp = (props) => {
     const {request, error, clearError} = useHttp();
     const message = useMessage()
     const currentInputRef = useRef({
-        date: new Date(new Date().setHours(new Date().getTimezoneOffset() / 60 * -1)).toISOString().split('T')[0]
+        date: new Date(new Date().setHours(new Date().getTimezoneOffset() / 60 * -1)).toISOString().split('T')[0],
+        time_offset: new Date().getTimezoneOffset() / 60 * -1
     });
     const carNumUnitId = useRef({});
+    const maponNumsForCount = useRef([]);
     const scheduleRef = useRef({});
+    const isMounted = React.useRef(true)
+
     const [responseState, setResponseState] = useState(null);
     const [displayType, setDisplayType] = useState("boltrides");
     const [loadInputRender, setLoadInputRender] = useState(true);
@@ -57,6 +61,10 @@ export const ChartInputApp = (props) => {
 
     const initialInputs = useCallback(async () => {
             setLoadInputRender(true)
+            const elemTimeZone = document.querySelector('#time_offset')
+            elemTimeZone.labels[0].classList.add('active')
+            elemTimeZone.value = new Date().getTimezoneOffset() / 60 * -1
+
             const elemCar = document.querySelector('.autocomplete#car');
             const elemDriver = document.querySelector('.autocomplete#driver');
             const elemsDate = document.querySelectorAll('.datepicker');
@@ -81,9 +89,10 @@ export const ChartInputApp = (props) => {
 
             const carsPromise = request('/api/workflow/cars', 'GET',
                 null, headers)
-
             //авто
             const carList = await carsPromise
+            // console.log('carList',carList)
+
             const autocompleteData = {}
             for (let car of carList.result) {
                 autocompleteData[car.number] = null;
@@ -91,6 +100,9 @@ export const ChartInputApp = (props) => {
             for (let car of carList.result) {
                 carNumUnitId.current[car.number] = car.unit_id;
             }
+
+            maponNumsForCount.current = Object.keys(carNumUnitId.current).map(num => num.slice(2, 6))
+
 
             const elemCarData = {
                 data: autocompleteData,
@@ -101,11 +113,13 @@ export const ChartInputApp = (props) => {
                     setResponseState(null)
                 }
             }
-            window.M.Autocomplete.init(elemCar, elemCarData);
-            elemCar.disabled = false
 
+            // window.M.Autocomplete.init(elemCar, elemCarData);
+            // elemCar.disabled = false
             //водители
             const driversList = await driversPromise
+            // console.log('driversList',driversList)
+
             const elemDriverData = {
                 data: driversList.result,
                 onAutocomplete: e => {
@@ -113,24 +127,29 @@ export const ChartInputApp = (props) => {
                     const driverFromRefSchedule = scheduleRef.current[e]
                     //прописать авто если есть водитель
                     if (driverFromRefSchedule) {
+                        const numbersOnlySchedule = driverFromRefSchedule.slice(0,4)
                         for (let maponNum of Object.keys(carNumUnitId.current)) {
-                            if (parseInt(maponNum.slice(2, 6)) === driverFromRefSchedule) {
+                            if (maponNum.slice(2, 6) === numbersOnlySchedule) {
                                 elemCar.value = maponNum
                                 elemCar.labels[0].classList.add('active')
                                 let unit_id = carNumUnitId.current[maponNum]
                                 currentInputRef.current = {...currentInputRef.current, car: unit_id}
+                                const length = maponNumsForCount.current.filter(num => num === numbersOnlySchedule).length
+                                document.querySelector('.helper-text#drivers-cars-length').innerText = `Similar cars ${length} (Schedule: ${driverFromRefSchedule})`
                                 break;
                             }
                         }
                     } else {
                         elemCar.value = ''
                         elemCar.labels[0].classList.remove('active')
+                        document.querySelector('.helper-text#drivers-cars-length').innerText = ``
                     }
                     setResponseState(null)
                 }
             }
-            window.M.Autocomplete.init(elemDriver, elemDriverData);
-            elemDriver.disabled = false
+            // console.log('elemDriver, elemDriverData',elemDriver, elemDriverData)
+            // window.M.Autocomplete.init(elemDriver, elemDriverData);
+            // elemDriver.disabled = false
 
             //дата
             const elemDataOptions = {
@@ -148,8 +167,17 @@ export const ChartInputApp = (props) => {
                     setResponseState(null)
                 }
             }
-            window.M.Datepicker.init(elemsDate, elemDataOptions);
-            elemsDate.disabled = false
+
+            // console.log('isMounted.current',isMounted.current)
+
+            if (isMounted.current){
+                window.M.Autocomplete.init(elemCar, elemCarData);
+                elemCar.disabled = false
+                window.M.Autocomplete.init(elemDriver, elemDriverData);
+                elemDriver.disabled = false
+                window.M.Datepicker.init(elemsDate, elemDataOptions);
+                elemsDate.disabled = false
+            }
 
             //график
             const schedule = await schedulePromise;
@@ -161,7 +189,12 @@ export const ChartInputApp = (props) => {
     );
 
     useEffect(() => {
+        //fixed баг, если не дожидаясь завершения initialInputs уйти со страницы, то все сломается
         initialInputs()
+        return () => {
+            isMounted.current = false;
+            setLoadInputRender(false)
+        };
     }, [initialInputs, authContext.currentCity]);
 
     const schedulePosition = useRef(-1);
@@ -191,6 +224,7 @@ export const ChartInputApp = (props) => {
             }
 
             if ([38, 40].includes(event.keyCode)) {
+                event.preventDefault()
                 const scheduleKeys = Object.keys(scheduleRef.current)
                 if (event.keyCode === 38) schedulePosition.current = schedulePosition.current - 1
                 if (event.keyCode === 40) schedulePosition.current = schedulePosition.current + 1
@@ -203,15 +237,21 @@ export const ChartInputApp = (props) => {
                 elemDriver.labels[0].classList.add('active')
 
                 const carFromRefSchedule = scheduleRef.current[driver]
+                // console.log(carFromRefSchedule.slice(0,4))
                 for (let maponNum of Object.keys(carNumUnitId.current)) {
-                    if (parseInt(maponNum.slice(2, 6)) === carFromRefSchedule) {
+                    const numbersOnlySchedule = carFromRefSchedule.slice(0,4)
+                    if (maponNum.slice(2, 6) === numbersOnlySchedule) {
                         const elemCar = document.querySelector('.autocomplete#car');
                         elemCar.value = maponNum
                         elemCar.labels[0].classList.add('active')
                         let unit_id = carNumUnitId.current[maponNum]
                         currentInputRef.current = {...currentInputRef.current, car: unit_id}
+                        const length = maponNumsForCount.current.filter(num => num === numbersOnlySchedule).length
+                        document.querySelector('.helper-text#drivers-cars-length').innerText = `Similar cars ${length} (Schedule: ${carFromRefSchedule})`
+                        // console.log('this.num.count', length)
                         break;
                     }
+
                 }
                 setResponseState(null)
             }
@@ -220,7 +260,7 @@ export const ChartInputApp = (props) => {
                 render();
                 return
             }
-            },
+        },
         [loadInputRender, render],
     );
 
@@ -235,9 +275,13 @@ export const ChartInputApp = (props) => {
 
     const inputHandler = (event) => {
         if (event.target.name === 'car') {
-            console.log(event.target.value)
-            console.log(carNumUnitId.current[event.target.value])
+            // console.log(event.target.value)
+            // console.log(carNumUnitId.current[event.target.value])
             event.target.value = carNumUnitId.current[event.target.value]
+        }
+
+        if (event.target.name === 'driver') {
+            document.querySelector('.helper-text#drivers-cars-length').innerText = ``
         }
 
         currentInputRef.current = {...currentInputRef.current, [event.target.name]: event.target.value}
@@ -251,51 +295,19 @@ export const ChartInputApp = (props) => {
 
     return (
         <>
-            <div className="col s6">
-                <div className="row no-margin-bot">
-                    <div className="col s4">
-                        <div className="input-field">
-                            <i className="small material-icons prefix ">directions_car</i>
-                            <input
-                                type="text"
-                                id="car"
-                                name="car"
-                                className="autocomplete"
-                                // onChange={inputHandler}
-                            />
-                            <label htmlFor="car">Car</label>
-                        </div>
-                    </div>
-                    <div className="col s8">
-                        <div className="input-field">
-                            <i className="small material-icons prefix ">face</i>
-                            <input
-                                type="text"
-                                id="driver"
-                                name="driver"
-                                className="autocomplete"
-                                onChange={inputHandler}
-                            />
-                            <label htmlFor="driver">Driver</label>
-                        </div>
-                    </div>
-                </div>
-                <div className="row no-margin-bot">
+            <div className="col s12 m4 l3">
+                <div className="input-field">
+                    <i className="small material-icons prefix ">access_time</i>
                     <input
-                        type="text"
-                        id="date"
-                        name="date"
-                        className="datepicker center"/>
-                    <button
-                        className="btn blue-grey darken-3 btn-space flow-btn"
-                        onClick={render}
-                        disabled={loadInputRender}
+                        //TODO сделать только цифры и значение по умолчанию
+                        type="number"
+                        id="time_offset"
+                        name="time_offset"
+                        className="validate"
                         onChange={inputHandler}
-                    >Update
-                    </button>
+                    />
+                    <label htmlFor="time_offset">Time zone</label>
                 </div>
-            </div>
-            <div className="col s6">
                 <form
                     id="types"
                     action="#">
@@ -340,8 +352,56 @@ export const ChartInputApp = (props) => {
                     </p>
                 </form>
             </div>
-
-
+            <div className="col s12 m8 l9">
+                <div className="row no-margin-bot">
+                    <div className="col s12 l5">
+                        <div className="input-field">
+                            <i className="small material-icons prefix ">directions_car</i>
+                            <input
+                                type="text"
+                                id="car"
+                                name="car"
+                                className="autocomplete"
+                                // onChange={inputHandler}
+                            />
+                            <label htmlFor="car">Car</label>
+                        </div>
+                    </div>
+                    <div className="col s12 l7">
+                        <div className="input-field">
+                            <i className="small material-icons prefix ">face</i>
+                            <input
+                                type="text"
+                                id="driver"
+                                name="driver"
+                                className="autocomplete"
+                                onChange={inputHandler}
+                            />
+                            <label htmlFor="driver">Driver</label>
+                            <span
+                                className="helper-text"
+                                id="drivers-cars-length"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="row no-margin-bot">
+                    <div className="col s12 m12 l12">
+                        <input
+                            type="text"
+                            id="date"
+                            name="date"
+                            className="datepicker center"/>
+                        <button
+                            className="btn blue-grey darken-3 btn-space flow-btn"
+                            onClick={render}
+                            disabled={loadInputRender}
+                            onChange={inputHandler}
+                        >Update
+                        </button>
+                    </div>
+                </div>
+            </div>
         </>
     );
 }

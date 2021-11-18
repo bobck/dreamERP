@@ -2,3 +2,7 @@
 node_modules
 config/default.json
 bolt_erp_service_account.json
+csv/
+credentials.json
+token.json
+token_bobckx10.json

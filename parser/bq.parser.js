@@ -2,7 +2,7 @@ const onTrip = '#008000';
 const toClient = '#81bd81';
 const empty = '#848484'
 
-const dispatcherLog = (queryResults, driverName) => {
+const dispatcherLog = (queryResults, driverName, time_offset) => {
     const delayMinutes = 7 * 60000;
 
     try {
@@ -80,8 +80,9 @@ const boltRidesLog = (queryResults) => {
     return colorArray
 }
 
-const uklonRidesLog = (queryResults) => {
-    const hoursOffset = new Date().getTimezoneOffset() * 60000;
+const uklonRidesLog = (queryResults, time_offset) => {
+    if (!time_offset) time_offset = (new Date().getTimezoneOffset() / 60) * -1
+    const hoursOffset = time_offset * -1 * 60 * 60000;
     const toClient = 5;
 
     try {
@@ -124,7 +125,7 @@ const parseSchedule = (queryResults) => {
 
     const out = {}
     for (let row of queryResults) {
-        out[row[nameField].replace('(UK) ','')] = parseInt(row[numberField])
+        out[row[nameField].replace('(UK) ', '')] = row[numberField]//parseInt(row[numberField])
     }
     return out
 }

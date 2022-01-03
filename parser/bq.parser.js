@@ -87,24 +87,64 @@ const uklonRidesLog = (queryResults, time_offset) => {
 
     try {
         const colorArray = []
-        for (let ride of queryResults) {
-            const startTime = new Date(ride['Created_Time'].value).getTime() + hoursOffset;
+
+        queryResults.forEach((ride, i, arr) => {
             colorArray.push({
-                time: startTime - (toClient * 60000),
-                lineColor: onTrip,
-                distance: ride.distance
+                time: ride.offer_accepted_at,
+                lineColor: onTrip
             })
-            const tripShift = (ride.distance * 2) * 60000
+
             colorArray.push({
-                time: startTime + tripShift,
+                time: ride.completed_at,
                 lineColor: empty
             })
+        })
+
+        for (let ride of queryResults) {
+            // const startTime = new Date(ride['Created_Time'].value).getTime() + hoursOffset;
+            // colorArray.push({
+            //     time: startTime - (toClient * 60000),
+            //     lineColor: onTrip,
+            //     distance: ride.distance
+            // })
+            // const tripShift = (ride.distance * 2) * 60000
+            // colorArray.push({
+            //     time: startTime + tripShift,
+            //     lineColor: empty
+            // })
         }
         return colorArray
     } catch (e) {
         throw {message: `uklonRidesLog: ${e.message}`}
     }
 }
+
+
+// const uklonRidesLog = (queryResults, time_offset) => {
+//     if (!time_offset) time_offset = (new Date().getTimezoneOffset() / 60) * -1
+//     const hoursOffset = time_offset * -1 * 60 * 60000;
+//     const toClient = 5;
+//
+//     try {
+//         const colorArray = []
+//         for (let ride of queryResults) {
+//             const startTime = new Date(ride['Created_Time'].value).getTime() + hoursOffset;
+//             colorArray.push({
+//                 time: startTime - (toClient * 60000),
+//                 lineColor: onTrip,
+//                 distance: ride.distance
+//             })
+//             const tripShift = (ride.distance * 2) * 60000
+//             colorArray.push({
+//                 time: startTime + tripShift,
+//                 lineColor: empty
+//             })
+//         }
+//         return colorArray
+//     } catch (e) {
+//         throw {message: `uklonRidesLog: ${e.message}`}
+//     }
+// }
 
 const parseDriversList = (queryResults) => {
     const field = 'First_Name';
